@@ -6,11 +6,12 @@ import {
     FileOutlined,
     TeamOutlined,
     UserOutlined,
-    LoadingOutlined
+    LoadingOutlined,  PlusOutlined
 } from '@ant-design/icons';
+import StudentDrawerForm from "./StudentDrawerForm";
 
 import './App.css';
-import {Layout, Menu, Breadcrumb, Table, Spin, Empty} from "antd";
+import {Layout, Menu, Breadcrumb, Table, Spin, Empty, Button} from "antd";
 const { Header, Content, Footer, Sider } = Layout;
 const { SubMenu } = Menu;
 
@@ -50,6 +51,7 @@ function App() {
     const [students, setStudents] = useState([]);
     const [collapsed, setCollapsed] = useState(false);
     const [fetching, setFetching] = useState(true);
+    const [showDrawer, setShowDrawer] = useState(false);
 
     const fetchStudents = () =>
         getAllStudents()
@@ -72,10 +74,21 @@ function App() {
         if (students.length <= 0){
             return <Empty />;
         }
-        return <Table dataSource={students}
+        return <>
+            <StudentDrawerForm
+                showDrawer={showDrawer}
+                setShowDrawer={setShowDrawer}
+                fetchStudents={fetchStudents}
+            />
+         <Table dataSource={students}
                       columns={columns}
                       bordered
-                      title={() => 'Students'}
+                      title={() =>
+                          <Button
+                              onClick={() => setShowDrawer(!showDrawer)}
+                              type="primary" shape="round" icon={<PlusOutlined />} size="medium">
+                          Add New Student
+                      </Button>}
                       pagination={{
                           pageSize: 50,
                       }}
@@ -83,7 +96,7 @@ function App() {
                           y: 400,
                       }}
                       rowKey={(student) => student.id}
-        />;
+        /> </>
     }
 
     return <Layout style={{ minHeight: '100vh' }}>
