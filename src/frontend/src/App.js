@@ -1,5 +1,5 @@
 import {useState, useEffect} from "react";
-import {getAllStudents} from "./client";
+import {deleteStudent, getAllStudents, updateStudent} from "./client";
 import {
     DesktopOutlined,
     PieChartOutlined,
@@ -11,11 +11,31 @@ import {
 import StudentDrawerForm from "./StudentDrawerForm";
 
 import './App.css';
-import {Layout, Menu, Breadcrumb, Table, Spin, Empty, Button} from "antd";
+import {Layout, Menu, Breadcrumb, Table, Spin, Empty, Button, Badge, Tag, Popconfirm, Radio} from "antd";
+import {errorNotification, successNotification} from "./notification";
 const { Header, Content, Footer, Sider } = Layout;
 const { SubMenu } = Menu;
 
-const columns = [
+
+
+const removeStudent = (studentId, callback) => {
+    deleteStudent(studentId).then(() => {
+        successNotification("Student deleted", `Student with ${studentId} was deleted`);
+        callback();
+    }).catch( err => {
+        console.log(err);
+        err.response.json().then(res => {
+            console.log(res);
+            errorNotification("there was an issue",
+                `${res.message} [${res.status}] [${res.error}]`,
+                "bottomLeft"
+            )
+        });
+    })
+}
+
+const columns = fetchStudents => [
+
     {
         title: 'Id',
         dataIndex: 'id',
@@ -36,6 +56,22 @@ const columns = [
         dataIndex: 'educationTitle',
         key: 'educationTitle',
     },
+    {
+        title: 'Actions',
+        key: 'actions',
+        render: (text, student) =>
+            <Radio.Group>
+                <Popconfirm
+                    placement='topRight'
+                    title={`Are you sure to delete ${student.name}`}
+                    onConfirm={() => removeStudent(student.id, fetchStudents)}
+                    okText='Yes'
+                    cancelText='No'>
+                    <Radio.Button value="small">Delete</Radio.Button>
+                </Popconfirm>
+                <Radio.Button value="small">Edit</Radio.Button>
+            </Radio.Group>
+    }
 ];
 
 const antIcon =
@@ -59,8 +95,14 @@ function App() {
             .then(data => {
                 console.log(data);
                 setStudents(data);
-                setFetching(false);
-            })
+            }).catch(err => {
+                console.log(err.response)
+                err.response.json().then(res => {
+                    console.log(res);
+                    errorNotification("there was an issue",
+                        `${res.message} [${res.status}] [${res.error}]`)
+                });
+        }).finally(() => setFetching(false));
 
     useEffect(() => {
         console.log("component is mounted");
@@ -71,8 +113,20 @@ function App() {
         if (fetching){
             return <Spin indicator={antIcon} />;
         }
-        if (students.length <= 0){
-            return <Empty />;
+        if (students.length <= 0) {
+            return <>
+                <Button
+                    onClick={() => setShowDrawer(!showDrawer)}
+                    type="primary" shape="round" icon={<PlusOutlined/>} size="small">
+                    Add New Student
+                </Button>
+                <StudentDrawerForm
+                    showDrawer={showDrawer}
+                    setShowDrawer={setShowDrawer}
+                    fetchStudents={fetchStudents}
+                />
+                <Empty/>
+            </>
         }
         return <>
             <StudentDrawerForm
@@ -81,14 +135,20 @@ function App() {
                 fetchStudents={fetchStudents}
             />
          <Table dataSource={students}
-                      columns={columns}
+                      columns={columns(fetchStudents)}
                       bordered
                       title={() =>
-                          <Button
-                              onClick={() => setShowDrawer(!showDrawer)}
-                              type="primary" shape="round" icon={<PlusOutlined />} size="medium">
-                          Add New Student
-                      </Button>}
+                          <>
+                              <Tag>Number of students</Tag>
+                              <Badge count={students.length} className="site-badge-count-4"/>
+                              <br/><br/>
+                              <Button
+                                  onClick={() => setShowDrawer(!showDrawer)}
+                                  type="primary" shape="round" icon={<PlusOutlined />} size="medium">
+                                  Add New Student
+                              </Button>
+                              </>
+                              }
                       pagination={{
                           pageSize: 50,
                       }}

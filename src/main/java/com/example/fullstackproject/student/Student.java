@@ -1,6 +1,8 @@
 package com.example.fullstackproject.student;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 @ToString
@@ -20,13 +22,15 @@ public class Student {
     @Column(name = "id", updatable = false)
     private Long id;
 
-    @Column(name = "displayName")
+    @NotBlank
+    @Column(name = "displayName", nullable = false)
     private String displayName;
 
-    @Column(name = "educationTitle")
+    @NotBlank
+    @Column(name = "educationTitle", nullable = false)
     private String educationTitle;
-
-    @Column(name = "email")
+    @Email
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
     public Student(String displayName, String educationTitle, String email) {
