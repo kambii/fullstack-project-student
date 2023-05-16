@@ -1,5 +1,5 @@
 import {useState, useEffect} from "react";
-import {deleteStudent, getAllStudents, updateStudent} from "./client";
+import {deleteStudent, getAllStudents /*updateStudent,*/} from "./client";
 import {
     DesktopOutlined,
     PieChartOutlined,
@@ -69,7 +69,14 @@ const columns = fetchStudents => [
                     cancelText='No'>
                     <Radio.Button value="small">Delete</Radio.Button>
                 </Popconfirm>
-                <Radio.Button value="small">Edit</Radio.Button>
+                <Popconfirm
+                    placement='topRight'
+                    title={`Are you sure to update ${student.name}`}
+                    //onConfirm={() => updateStudent(student.id, fetchStudents)}
+                    okText='Yes'
+                    cancelText='No'>
+                    <Radio.Button value="small">Edit</Radio.Button>
+                </Popconfirm>
             </Radio.Group>
     }
 ];

@@ -20,6 +20,11 @@ public class StudentService {
         return studentRepository.findAll();
      }
 
+    public Student getStudent(Long id) {
+        return studentRepository.findById(id)
+                .orElseThrow(RuntimeException::new);
+    }
+
     public void addStudent(Student student) {
         Boolean existsEmail = studentRepository.selectExistsEmail(student.getEmail());
         if (existsEmail){
@@ -35,7 +40,20 @@ public class StudentService {
         studentRepository.deleteById(studentId);
     }
 
-    @Transactional
+    public Student updateStudent(Long id, Student student) {
+
+        Student currentStudent = studentRepository.findById(id)
+                .orElseThrow(RuntimeException::new);
+
+        currentStudent.setEmail(student.getEmail());
+        currentStudent.setEducationTitle(student.getEducationTitle());
+        currentStudent.setDisplayName(student.getDisplayName());
+
+        return studentRepository.save(currentStudent);
+    }
+
+
+   /* @Transactional
     public void updateStudent(Long studentId, String displayName, String email){
         Student student = studentRepository.findById(studentId)
                 .orElseThrow(() -> new IllegalStateException("student with id " + studentId + "does not exist"));
@@ -54,5 +72,5 @@ public class StudentService {
             }
             student.setEmail(email);
         }
-    }
+    }*/
 }

@@ -2,6 +2,7 @@ package com.example.fullstackproject.student;
 
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
@@ -19,6 +20,11 @@ public class StudentController {
       return studentService.getAllStudents();
     }
 
+    @GetMapping("{studentId}")
+    public Student getStudent(@PathVariable("studentId") Long id){
+        return studentService.getStudent(id);
+    }
+
     @PostMapping
     public void addStudent(@Valid @RequestBody Student student) {
         studentService.addStudent(student);
@@ -30,10 +36,16 @@ public class StudentController {
     }
 
     @PutMapping(path = "{studentId}")
+    public ResponseEntity updateStudent(@PathVariable("studentId") Long id,@RequestBody Student student){
+        Student updatedStudent = studentService.updateStudent(id,student);
+        return ResponseEntity.ok(updatedStudent);
+    }
+
+   /* @PutMapping(path = "{studentId}")
     public void updateStudent(
             @PathVariable("studentId") Long studentId,
             @RequestParam(required = false) String displayName,
             @RequestParam(required = false) String email) {
         studentService.updateStudent(studentId, displayName, email);
-    }
+    }*/
 }
